@@ -1,0 +1,39 @@
+Real-World Device Cache Simulation Results
+==========================================
+
+Device 1: Raspberry Pi 4 (Budget Embedded Device)
+---------------------------------------------------
+Processor: ARM Cortex-A72
+L1 Data Cache: 32 KB
+Line Size: 64 bytes
+Associativity: 2-way set associative
+
+Simulation Results:
+- Cache Size: 32,768 bytes (32 KB)
+- Line Size: 64 bytes
+- Associativity: 2-way
+- Policy: LRU
+- Hits: 937 out of 1000 accesses
+- Hit Rate: 93.70%
+
+Device 2: Gaming Laptop (Intel Core i7-12700H)
+-----------------------------------------------
+Processor: Intel Core i7-12700H (2022)
+L1 Data Cache: 48 KB per core (simulated as 64 KB)
+Line Size: 64 bytes
+Associativity: Fully associative (12-way approximated)
+
+Simulation Results:
+- Cache Size: 65,536 bytes (64 KB)
+- Line Size: 64 bytes
+- Associativity: Fully associative
+- Policy: LRU
+- Hits: 937 out of 1000 accesses
+- Hit Rate: 93.70%
+
+Analysis:
+Both devices achieve identical hit rates (93.70%) despite different cache architectures.
+The Raspberry Pi's 2-way associative cache performs as well as the fully associative
+cache for this trace pattern, demonstrating that associativity may not always be the
+limiting factor for certain access patterns.
+
