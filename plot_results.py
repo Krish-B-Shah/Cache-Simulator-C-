@@ -24,37 +24,74 @@ except:
 fig = plt.figure(figsize=(16, 10))
 
 # ============================================================================
-# Plot 1: Hit Rate vs Cache Size
+# Plot 1: Hit Rate vs Cache Size (with FIFO and LRU)
 # ============================================================================
 ax1 = plt.subplot(2, 2, 1)
-exp1 = df[(df['LineSize'] == 32) & (df['Associativity'] == 'fully') & (df['Policy'] == 'LRU')]
-exp1 = exp1.drop_duplicates(subset=['CacheSize'], keep='first')
-exp1 = exp1.sort_values('CacheSize')
-ax1.plot(exp1['CacheSize'], exp1['HitRate'] * 100, 'o-', linewidth=2, markersize=8, color='#2E86AB')
+exp1_lru = df[(df['LineSize'] == 32) & (df['Associativity'] == 'fully') & (df['Policy'] == 'LRU')]
+exp1_lru = exp1_lru.drop_duplicates(subset=['CacheSize'], keep='first')
+exp1_lru = exp1_lru.sort_values('CacheSize')
+
+exp1_fifo = df[(df['LineSize'] == 32) & (df['Associativity'] == 'fully') & (df['Policy'] == 'FIFO')]
+exp1_fifo = exp1_fifo.drop_duplicates(subset=['CacheSize'], keep='first')
+exp1_fifo = exp1_fifo.sort_values('CacheSize')
+
+ax1.plot(exp1_lru['CacheSize'], exp1_lru['HitRate'] * 100, 'o-', linewidth=2, markersize=8, 
+         color='#2E86AB', label='LRU')
+ax1.plot(exp1_fifo['CacheSize'], exp1_fifo['HitRate'] * 100, 's--', linewidth=2, markersize=8, 
+         color='#D00000', label='FIFO')
+
+# Add real device markers
+ax1.scatter([32768, 65536], [93.7, 93.7], s=250, marker='*', 
+            c=['#06A77D', '#A23B72'], edgecolors='black', linewidths=2,
+            label='Real Devices', zorder=5)
+ax1.text(32768, 94.5, 'Raspberry Pi 4\n(32KB)', fontsize=9, ha='center', 
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+ax1.text(65536, 94.5, 'Intel i7-12700H\n(64KB)', fontsize=9, ha='center',
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+
 ax1.set_xlabel('Cache Size (bytes)', fontsize=12, fontweight='bold')
 ax1.set_ylabel('Hit Rate (%)', fontsize=12, fontweight='bold')
-ax1.set_title('Hit Rate vs Cache Size\n(Line Size=32B, Fully Associative, LRU)', fontsize=13, fontweight='bold')
+ax1.set_title('Hit Rate vs Cache Size\n(Line Size=32B, Fully Associative)', fontsize=13, fontweight='bold')
+ax1.legend(loc='best', fontsize=10)
 ax1.grid(True, alpha=0.3)
-ax1.set_ylim([85, 95])
-for i, row in exp1.iterrows():
+ax1.set_ylim([85, 96])
+ax1.set_xlim([0, 70000])  # Extend to show real devices
+for i, row in exp1_lru.iterrows():
     ax1.annotate(f"{row['HitRate']*100:.2f}%", 
                 (row['CacheSize'], row['HitRate']*100),
                 textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
 
 # ============================================================================
-# Plot 2: Hit Rate vs Line Size
+# Plot 2: Hit Rate vs Line Size (with FIFO and LRU)
 # ============================================================================
 ax2 = plt.subplot(2, 2, 2)
-exp2 = df[(df['CacheSize'] == 1024) & (df['Associativity'] == 'fully') & (df['Policy'] == 'LRU')]
-exp2 = exp2.drop_duplicates(subset=['LineSize'], keep='first')
-exp2 = exp2.sort_values('LineSize')
-ax2.plot(exp2['LineSize'], exp2['HitRate'] * 100, 's-', linewidth=2, markersize=8, color='#A23B72')
+exp2_lru = df[(df['CacheSize'] == 1024) & (df['Associativity'] == 'fully') & (df['Policy'] == 'LRU')]
+exp2_lru = exp2_lru.drop_duplicates(subset=['LineSize'], keep='first')
+exp2_lru = exp2_lru.sort_values('LineSize')
+
+exp2_fifo = df[(df['CacheSize'] == 1024) & (df['Associativity'] == 'fully') & (df['Policy'] == 'FIFO')]
+exp2_fifo = exp2_fifo.drop_duplicates(subset=['LineSize'], keep='first')
+exp2_fifo = exp2_fifo.sort_values('LineSize')
+
+ax2.plot(exp2_lru['LineSize'], exp2_lru['HitRate'] * 100, 'o-', linewidth=2, markersize=8, 
+         color='#2E86AB', label='LRU')
+ax2.plot(exp2_fifo['LineSize'], exp2_fifo['HitRate'] * 100, 's--', linewidth=2, markersize=8, 
+         color='#D00000', label='FIFO')
+
+# Add real device markers (both use 64-byte lines)
+ax2.scatter([64, 64], [93.7, 93.7], s=250, marker='*', 
+            c=['#06A77D', '#A23B72'], edgecolors='black', linewidths=2,
+            label='Real Devices', zorder=5)
+ax2.text(64, 95.5, 'Raspberry Pi 4 &\nIntel i7-12700H\n(64B lines)', fontsize=9, ha='center',
+         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+
 ax2.set_xlabel('Line Size (bytes)', fontsize=12, fontweight='bold')
 ax2.set_ylabel('Hit Rate (%)', fontsize=12, fontweight='bold')
-ax2.set_title('Hit Rate vs Line Size\n(Cache Size=1024B, Fully Associative, LRU)', fontsize=13, fontweight='bold')
+ax2.set_title('Hit Rate vs Line Size\n(Cache Size=1024B, Fully Associative)', fontsize=13, fontweight='bold')
+ax2.legend(loc='best', fontsize=10)
 ax2.grid(True, alpha=0.3)
-ax2.set_ylim([70, 100])
-for i, row in exp2.iterrows():
+ax2.set_ylim([70, 97])
+for i, row in exp2_lru.iterrows():
     ax2.annotate(f"{row['HitRate']*100:.2f}%", 
                 (row['LineSize'], row['HitRate']*100),
                 textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
